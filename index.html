@@ -344,20 +344,13 @@
     }
 
     .marquee-wrap {
-      overflow-x: auto;
-      overflow-y: hidden;
+      overflow: hidden;
       position: relative;
-      -webkit-overflow-scrolling: touch;
       cursor: grab;
-      scrollbar-width: none;
     }
 
     .marquee-wrap.is-dragging {
       cursor: grabbing;
-    }
-
-    .marquee-wrap::-webkit-scrollbar {
-      display: none;
     }
 
     .marquee-wrap::before,
@@ -386,8 +379,29 @@
       display: flex;
       gap: 18px;
       padding: 6px 0;
-      will-change: scroll-position;
       user-select: none;
+      animation: character-marquee 34s linear infinite;
+    }
+
+    .marquee-wrap:hover .character-track,
+    .marquee-wrap:focus-within .character-track,
+    .character-track.is-paused {
+      animation-play-state: paused;
+    }
+
+    @keyframes character-marquee {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .character-track {
+        animation: none;
+      }
     }
 
     .character-card {
@@ -1119,10 +1133,6 @@
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
-      }
-
-      .marquee-wrap {
-        scroll-behavior: auto;
       }
     }
   
@@ -2049,88 +2059,58 @@
         track.appendChild(clone);
       });
 
-      const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-
-      let isPaused = false;
       let isPointerDown = false;
       let hasDragged = false;
       let startX = 0;
-      let startScrollLeft = 0;
+      let baseX = 0;
       let resumeTimer = null;
-      let halfWidth = 0;
 
-      const measure = () => {
-        halfWidth = track.scrollWidth / 2;
+      const getCurrentTranslateX = () => {
+        const style = window.getComputedStyle(track);
+        const matrix = style.transform;
+        if (!matrix || matrix === "none") return 0;
+        const match = matrix.match(/matrix.*\((.+)\)/);
+        if (!match) return 0;
+        const values = match[1].split(", ");
+        // matrix(a, b, c, d, tx, ty) or matrix3d(...)
+        return values.length === 6
+          ? parseFloat(values[4])
+          : parseFloat(values[12]) || 0;
       };
 
-      measure();
-      window.addEventListener("resize", measure);
-
-      const loopIfNeeded = () => {
-        if (halfWidth <= 0) return;
-        if (marqueeWrap.scrollLeft >= halfWidth) {
-          marqueeWrap.scrollLeft -= halfWidth;
-        } else if (marqueeWrap.scrollLeft <= 0) {
-          marqueeWrap.scrollLeft += halfWidth;
-        }
-      };
-
-      const autoScrollSpeed = 0.6; // pixels per frame, ~32px/s at 60fps feel
-
-      const step = () => {
-        if (!isPaused && !isPointerDown && !prefersReducedMotion) {
-          marqueeWrap.scrollLeft += autoScrollSpeed;
-          loopIfNeeded();
-        }
-        requestAnimationFrame(step);
-      };
-
-      requestAnimationFrame(step);
-
-      const pause = () => {
-        isPaused = true;
-        if (resumeTimer) {
-          clearTimeout(resumeTimer);
-          resumeTimer = null;
-        }
-      };
-
-      const scheduleResume = (delay = 2200) => {
+      const scheduleResume = (delay = 1800) => {
         if (resumeTimer) clearTimeout(resumeTimer);
         resumeTimer = setTimeout(() => {
-          isPaused = false;
+          track.classList.remove("is-paused");
+          track.style.transform = "";
         }, delay);
       };
 
-      marqueeWrap.addEventListener("mouseenter", pause);
-      marqueeWrap.addEventListener("mouseleave", () => scheduleResume(0));
-      marqueeWrap.addEventListener("focusin", pause);
-      marqueeWrap.addEventListener("focusout", () => scheduleResume(0));
-
-      // Swipe / drag support (mouse + touch via pointer events)
+      // Pointer-based drag (mouse + touch)
       marqueeWrap.addEventListener("pointerdown", (event) => {
         isPointerDown = true;
         hasDragged = false;
-        pause();
+        if (resumeTimer) clearTimeout(resumeTimer);
+        baseX = getCurrentTranslateX();
+        track.classList.add("is-paused");
+        track.style.transform = `translateX(${baseX}px)`;
         marqueeWrap.classList.add("is-dragging");
         startX = event.clientX;
-        startScrollLeft = marqueeWrap.scrollLeft;
+        marqueeWrap.setPointerCapture &&
+          marqueeWrap.setPointerCapture(event.pointerId);
       });
 
       marqueeWrap.addEventListener("pointermove", (event) => {
         if (!isPointerDown) return;
         const delta = event.clientX - startX;
         if (Math.abs(delta) > 4) hasDragged = true;
-        marqueeWrap.scrollLeft = startScrollLeft - delta;
+        track.style.transform = `translateX(${baseX + delta}px)`;
       });
 
       const endDrag = () => {
         if (!isPointerDown) return;
         isPointerDown = false;
         marqueeWrap.classList.remove("is-dragging");
-        loopIfNeeded();
         scheduleResume();
       };
 
@@ -2149,13 +2129,6 @@
         },
         true
       );
-
-      // Native touch scroll (swipe) still pauses autoplay while active
-      marqueeWrap.addEventListener("touchstart", pause, { passive: true });
-      marqueeWrap.addEventListener("touchend", () => scheduleResume(), {
-        passive: true,
-      });
-      marqueeWrap.addEventListener("scroll", loopIfNeeded, { passive: true });
     }
 
     const contactForm = document.querySelector("#contact-form");
