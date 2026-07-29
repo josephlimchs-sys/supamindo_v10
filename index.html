@@ -380,8 +380,11 @@
       display: flex;
       gap: 18px;
       padding: 6px 0;
-      animation: scroll-left-to-right 34s linear infinite;
-      transform: translateX(-50%);
+      will-change: transform;
+    }
+
+    .character-track.is-playing {
+      animation: residents-marquee 32s linear infinite;
     }
 
     .marquee-wrap:hover .character-track,
@@ -389,8 +392,10 @@
       animation-play-state: paused;
     }
 
-    @keyframes scroll-left-to-right {
-      from { transform: translateX(-50%); }
+    @keyframes residents-marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(calc(-50% - 9px)); }
+    }
       to { transform: translateX(0); }
     }
 
@@ -1557,21 +1562,118 @@
       }
     }
 
-#home{
-  min-height:820px;
-  background-color:#F7F4EE;
-  background-image:url('assets/images/web-banner_right-side.png');
-  background-repeat:no-repeat;
-  background-position:right center;
-  background-size:48%;
-}
+
 @media(max-width:900px){
- #home{
-   background-position:center bottom;
-   background-size:85%;
-   padding-bottom:420px;
- }
+ 
 }
+
+    /* Responsive hero banner */
+    #home {
+      position: relative;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    #home .container {
+      display: grid;
+      grid-template-columns: minmax(0, 0.82fr) minmax(560px, 1.18fr);
+      align-items: center;
+      gap: 24px;
+      min-height: 820px;
+      padding-top: 72px;
+      padding-bottom: 72px;
+    }
+
+    #home .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 680px;
+    }
+
+    #home .hero-visual {
+      position: relative;
+      z-index: 1;
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    #home .hero-visual img {
+      display: block;
+      width: min(100%, 980px);
+      height: auto;
+      object-fit: contain;
+      object-position: center right;
+    }
+
+    @media (max-width: 1180px) {
+      #home .container {
+        grid-template-columns: minmax(0, 0.9fr) minmax(460px, 1.1fr);
+        min-height: 720px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      #home .container {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        padding-top: 48px;
+        padding-bottom: 64px;
+        text-align: center;
+      }
+
+      #home .hero-content {
+        max-width: 760px;
+        margin: 0 auto;
+      }
+
+      #home .hero-visual {
+        order: -1;
+        justify-content: center;
+      }
+
+      #home .hero-visual img {
+        width: min(100%, 720px);
+        object-position: center;
+      }
+
+      #home .hero-actions {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 600px) {
+      #home .container {
+        gap: 18px;
+        padding-top: 28px;
+        padding-bottom: 48px;
+      }
+
+      #home .hero-visual img {
+        width: 100%;
+      }
+
+      #home .hero-content h1 {
+        font-size: clamp(3rem, 16vw, 4.8rem);
+        line-height: 0.92;
+      }
+
+      #home .hero-content p {
+        font-size: 1rem;
+      }
+
+      #home .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      #home .hero-actions .button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
 </style>
 <link href="assets/images/logo_icon-8.png" rel="icon" type="image/png"/></head>
 <body>
@@ -1602,7 +1704,7 @@
 </nav>
 </header>
 <main id="main-content">
-<section class="hero" id="home" style="background:url('assets/images/web-banner_right-side.png') center right / contain no-repeat;">
+<section class="hero" id="home">
 <div class="container hero-grid">
 <div class="hero-copy">
 <span class="eyebrow">Supamindo · Creative Learning</span>
@@ -1621,8 +1723,7 @@
 <a class="button" href="#block-302">Discover Block 302 ↗</a>
 </div>
 </div>
-
-</div>
+<div class="hero-visual"><img alt="Supamindo residents standing in front of Block 302" decoding="async" fetchpriority="high" src="assets/images/web-banner_right-side.png"/></div></div>
 </section>
 <section aria-labelledby="residents-heading" class="character-showcase">
 <div class="container">
@@ -1636,9 +1737,7 @@
 </div>
 </div>
 <div aria-label="Auto-playing character carousel" class="marquee-wrap" tabindex="0">
-<div class="character-track" id="character-track">
-<!-- JavaScript duplicates this set for a seamless loop -->
-<article class="character-card">
+<div class="character-track" id="character-track"><article class="character-card">
 <div class="character-image">
 <img alt="Nurani from Block 302" src="assets/images/nurani_malay.png"/>
 </div>
@@ -1646,8 +1745,7 @@
 <h3>Nurani</h3>
 <p>The environmentally conscious mother</p>
 </div>
-</article>
-<article class="character-card">
+</article><article class="character-card">
 <div class="character-image">
 <img alt="Bao Jin Tian from Block 302" src="assets/images/bao-jing-tian_chinese-prc_v2.png"/>
 </div>
@@ -1655,8 +1753,7 @@
 <h3>Bao Jin Tian</h3>
 <p>The dedicated tuition teacher</p>
 </div>
-</article>
-<article class="character-card">
+</article><article class="character-card">
 <div class="character-image">
 <img alt="Roy from Block 302" src="assets/images/roy_chinese_sg.png"/>
 </div>
@@ -1664,8 +1761,7 @@
 <h3>Roy</h3>
 <p>The digital guide and ICT manager</p>
 </div>
-</article>
-<article class="character-card">
+</article><article class="character-card">
 <div class="character-image">
 <img alt="Christine from Block 302" src="assets/images/christine_chinese_sg-1.png"/>
 </div>
@@ -1673,8 +1769,7 @@
 <h3>Christine</h3>
 <p>The successful career professional</p>
 </div>
-</article>
-<article class="character-card">
+</article><article class="character-card">
 <div class="character-image">
 <img alt="Muthu from Block 302" src="assets/images/muthu_idian-1.png"/>
 </div>
@@ -1682,8 +1777,7 @@
 <h3>Muthu</h3>
 <p>The friendly retired neighbour</p>
 </div>
-</article>
-</div>
+</article></div>
 </div>
 </section>
 <section class="section" id="block-302">
@@ -1744,8 +1838,7 @@
             and everyday strength to the Supamindo community.
           </p>
 </div>
-<div class="resident-grid">
-</div>
+<div class="resident-grid"><article class="resident-card"><div class="resident-image"><img alt="Nurani, a caring Malay cat character" loading="lazy" src="assets/images/nurani_malay.png"/></div><div class="resident-copy"><span class="resident-number">01</span><h3>Nurani</h3><p class="resident-role">The Caring Neighbour</p><p>Warm, practical and community-minded, Nurani believes small acts of care can make Block 302 feel welcoming and connected.</p><div class="resident-tags"><span>Kindness</span><span>Community</span><span>Responsibility</span></div></div></article><article class="resident-card"><div class="resident-image"><img alt="Bao Jin Tian, a calm panda character" loading="lazy" src="assets/images/bao-jing-tian_chinese-prc_v2.png"/></div><div class="resident-copy"><span class="resident-number">02</span><h3>Bao Jin Tian</h3><p class="resident-role">The Calm Hero</p><p>Steady, observant and dependable, Bao Jin Tian reminds everyone to slow down, think clearly and make thoughtful choices.</p><div class="resident-tags"><span>Calm</span><span>Focus</span><span>Wisdom</span></div></div></article><article class="resident-card"><div class="resident-image"><img alt="Roy, an energetic rabbit character" loading="lazy" src="assets/images/roy_chinese_sg.png"/></div><div class="resident-copy"><span class="resident-number">03</span><h3>Roy</h3><p class="resident-role">The Digital Guide</p><p>Quick, energetic and curious, Roy helps children understand technology while encouraging a healthy balance beyond the screen.</p><div class="resident-tags"><span>Energy</span><span>Curiosity</span><span>Digital Literacy</span></div></div></article><article class="resident-card"><div class="resident-image"><img alt="Christine, a thoughtful chicken character" loading="lazy" src="assets/images/christine_chinese_sg-1.png"/></div><div class="resident-copy"><span class="resident-number">04</span><h3>Christine</h3><p class="resident-role">The Thoughtful Planner</p><p>Christine notices every detail and likes to be prepared. She learns how to turn worry into clear plans and positive action.</p><div class="resident-tags"><span>Planning</span><span>Care</span><span>Awareness</span></div></div></article><article class="resident-card"><div class="resident-image"><img alt="Muthu, a gentle Indian sheep character" loading="lazy" src="assets/images/muthu_idian-1.png"/></div><div class="resident-copy"><span class="resident-number">05</span><h3>Muthu</h3><p class="resident-role">The Gentle Encourager</p><p>Patient, respectful and quietly supportive, Muthu helps others feel included and reminds them that meaningful progress takes time.</p><div class="resident-tags"><span>Patience</span><span>Respect</span><span>Support</span></div></div></article></div>
 </div>
 </section>
 <section class="section" id="about">
@@ -2011,7 +2104,7 @@
 <a class="button button-light" href="https://wa.me/65XXXXXXXX" rel="noopener" target="_blank">WhatsApp Us</a>
 </div>
 </div>
-<form class="contact-form" id="contact-form" novalidate="">
+<form action="mailto:hello@supamindo.com" class="contact-form" enctype="text/plain" id="contact-form" method="post" novalidate="">
 <div class="form-row">
 <input aria-label="Name" name="name" placeholder="Name" required="" type="text"/>
 <input aria-label="Email" name="email" placeholder="Email" required="" type="email"/>
@@ -2028,7 +2121,7 @@
 <option>Community Event</option>
 </select>
 <textarea aria-label="Message" name="message" placeholder="Tell us about your enquiry" required=""></textarea>
-<button class="button button-light" type="submit">Send Enquiry</button>
+<button aria-label="Send enquiry to hello@supamindo.com" class="button button-light" type="submit">Send Enquiry</button>
 </form>
 </div>
 </section>
@@ -2081,33 +2174,48 @@
     });
 
     const track = document.querySelector("#character-track");
-    const originalCards = Array.from(track.children);
 
-    originalCards.forEach((card) => {
-      const clone = card.cloneNode(true);
-      clone.setAttribute("aria-hidden", "true");
-      clone.querySelectorAll("a, button, input").forEach((item) => {
-        item.setAttribute("tabindex", "-1");
+    if (track) {
+      const originalCards = Array.from(track.children);
+
+      originalCards.forEach((card) => {
+        const clone = card.cloneNode(true);
+        clone.setAttribute("aria-hidden", "true");
+        track.appendChild(clone);
       });
-      track.appendChild(clone);
-    });
+
+      track.classList.add("is-playing");
+    }
 
     const contactForm = document.querySelector("#contact-form");
-    const formStatus = document.querySelector("#form-status");
 
-    contactForm.addEventListener("submit", (event) => {
-      event.preventDefault();
+    if (contactForm) {
+      contactForm.addEventListener("submit", (event) => {
+        event.preventDefault();
 
-      if (!contactForm.checkValidity()) {
-        formStatus.textContent = "Please complete the required fields.";
-        contactForm.reportValidity();
-        return;
-      }
+        if (!contactForm.checkValidity()) {
+          contactForm.reportValidity();
+          return;
+        }
 
-      formStatus.textContent =
-        "Form layout is ready. Connect this form to your email service or website backend.";
-      contactForm.reset();
-    });
+        const formData = new FormData(contactForm);
+        const subject = "Supamindo Enquiry";
+        const body = [
+          `Name: ${formData.get("name") || ""}`,
+          `Email: ${formData.get("email") || ""}`,
+          `Contact number: ${formData.get("phone") || ""}`,
+          `Organisation: ${formData.get("organisation") || ""}`,
+          `Programme: ${formData.get("programme") || ""}`,
+          "",
+          "Message:",
+          formData.get("message") || ""
+        ].join("
+");
+
+        window.location.href =
+          `mailto:hello@supamindo.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      });
+    }
   </script>
 </body>
 </html>
